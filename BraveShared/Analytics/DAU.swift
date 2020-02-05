@@ -28,8 +28,12 @@ public class DAU {
         return DAU.calendar.dateComponents([.day, .month, .year, .weekday], from: today)
     }
     
+    private static let apiKeyPlistKey = "API_KEY"
+    private let apiKey: String?
+    
     public init(date: Date = Date()) {
         today = date
+        apiKey = (Bundle.main.infoDictionary?[Self.apiKeyPlistKey] as? String)?.trimmingCharacters(in: .whitespaces)
     }
     
     /// Sends ping to server and returns a boolean whether a timer for the server call was scheduled.
@@ -140,6 +144,10 @@ public class DAU {
             UrpLog.log("DAU ping with added ref, params: \(params)")
         }
         
+        if let key = apiKey, !key.isEmpty {
+            params.append(URLQueryItem(name: "key", value: key))
+        }
+
         let lastPingTimestamp = [Int((today).timeIntervalSince1970)]
         
         return ParamsAndPrefs(queryParams: params, lastLaunchInfoPreference: lastPingTimestamp)
